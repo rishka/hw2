@@ -7,7 +7,7 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    @movies = Movie.order((params[:field_name] ? params[:field_name] : :id).to_s + " asc")
   end
 
   def new
