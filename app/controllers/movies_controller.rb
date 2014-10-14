@@ -1,5 +1,5 @@
 class MoviesController < ApplicationController
-
+  helper_method :sorted_col
   def show
     id = params[:id] # retrieve movie ID from URI route
     @movie = Movie.find(id) # look up movie by unique ID
@@ -7,7 +7,7 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.order((params[:field_name] ? params[:field_name] : :id).to_s + " asc")
+    @movies = Movie.order((sorted_col).to_s + " asc")
   end
 
   def new
@@ -36,6 +36,11 @@ class MoviesController < ApplicationController
     @movie.destroy
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
+  end
+
+  private
+  def sorted_col
+    Movie.column_names.include?(params[:field_name]) ? params[:field_name] : :id
   end
 
 end
