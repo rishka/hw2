@@ -12,10 +12,8 @@ class MoviesController < ApplicationController
 
   def index
     if params[:ratings] == nil or (params[:field_name == nil] and session[:field_name] != nil)
-      if params[:field_name] == nil
-        if session[:field_name] == nil
+      if params[:field_name] == nil and session[:field_name] != nil
           params[:field_name] = session[:field_name]
-        end
       end
       if session[:ratings] == nil
         params[:ratings] = Hash.new
@@ -24,11 +22,14 @@ class MoviesController < ApplicationController
       else
         params[:ratings] = session[:ratings]
       end
+      session[:ratings] = params[:ratings]
+      session[:field_name] = params[:field_name]
       redirect_to movies_path(params)
     end
     session[:ratings] = params[:ratings]
     session[:field_name] = params[:field_name]
-    @movies = Movie.order((sorted_col).to_s + " asc")
+    sql_string = params[:ratings].map {|x,y| "rating = '#{x}'"}.join(" OR ")
+    @movies = Movie.order((sorted_col).to_s + " asc").where(sql_string)
   end
 
   def new
