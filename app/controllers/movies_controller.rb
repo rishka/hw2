@@ -1,5 +1,5 @@
 class MoviesController < ApplicationController
-  helper_method :sorted_col
+  helper_method :sorted_col, :check_ratings
   def initialize
     @all_ratings = Movie.all_ratings
     super
@@ -11,6 +11,19 @@ class MoviesController < ApplicationController
   end
 
   def index
+    if params[:ratings] == nil
+      if session[:ratings] == nil
+        params[:ratings] = Hash.new
+        @all_ratings.each {|rating| params[:ratings][rating] = 1}
+        session[:ratings] = params[:ratings]
+      else
+        params[:ratings] = session[:ratings]
+        params[:field_name] = session[:field_name]
+      end
+      redirect_to movies_path(params)
+    end
+    session[:ratings] = params[:ratings]
+    session[:field_name] = params[:field_name]
     @movies = Movie.order((sorted_col).to_s + " asc")
   end
 
@@ -47,4 +60,7 @@ class MoviesController < ApplicationController
     Movie.column_names.include?(params[:field_name]) ? params[:field_name] : :id
   end
 
+  def check_ratings(rating)
+    params[:ratings][rating]
+  end
 end
