@@ -11,14 +11,18 @@ class MoviesController < ApplicationController
   end
 
   def index
-    if params[:ratings] == nil
+    if params[:ratings] == nil or (params[:field_name == nil] and session[:field_name] != nil)
+      if params[:field_name] == nil
+        if session[:field_name] == nil
+          params[:field_name] = session[:field_name]
+        end
+      end
       if session[:ratings] == nil
         params[:ratings] = Hash.new
         @all_ratings.each {|rating| params[:ratings][rating] = 1}
         session[:ratings] = params[:ratings]
       else
         params[:ratings] = session[:ratings]
-        params[:field_name] = session[:field_name]
       end
       redirect_to movies_path(params)
     end
